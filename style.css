@@ -607,10 +607,107 @@ body {
     background: #37474F;
 }
 
+/* --- Side Menu --- */
+.side-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    /* Hidden off-screen to the right by default */
+    width: 100%;
+    max-width: 320px;
+    /* limits width on desktop, but full screen on mobile if needed */
+    height: 100%;
+    background: #FFFAF0;
+    /* Warm white */
+    z-index: 1000;
+    transition: right 0.4s var(--ease-smooth);
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.side-menu.visible {
+    right: 0;
+    /* Slide in */
+}
+
+.side-menu-content {
+    position: relative;
+    padding: 3rem 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.close-menu-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: #546E7A;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.close-menu-btn:hover {
+    transform: scale(1.1);
+}
+
+.menu-nav {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.support-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    text-decoration: none;
+    color: white;
+    background: #fd656e;
+    /* Soft red/pink for support */
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(253, 101, 110, 0.3);
+}
+
+.support-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(253, 101, 110, 0.4);
+}
+
 /* Capture Hack */
 /* When capturing, we might want to ensure the background is correct or simple */
 .capturing {
     border-radius: 0;
     /* Flat for image */
     background: #FFFAF0;
+}
+
+/* --- Responsive Adjustments (Mobile) --- */
+@media (max-width: 480px) {
+    .card {
+        padding: 2rem 1.5rem;
+    }
+
+    .action-btn {
+        min-width: unset;
+        width: 85%;
+        margin: 0 auto;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+    }
+
+    .card-actions {
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: center;
+    }
 }
