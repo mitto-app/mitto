@@ -39,9 +39,8 @@
     /* Muted Blue-Grey reflecting the upper sky/clouds */
     --c-sun: #FFFAE0;
 
-    /* Sun at Horizon (Half set) - Relative to 60% Sky Layer */
-    /* 50% of Sky Layer = 30% of Viewport (Horizon) */
-    --sun-pos: calc(50% - 24px);
+    /* Sun resting half on the 45% horizon (Subtract half 48px height) */
+    --sun-pos: calc(45% - 24px);
 }
 
 /* Sunset (16-19) */
@@ -55,8 +54,8 @@
     --c-sun-glow: rgba(255, 215, 0, 0.4);
     --c-logo: #FFF;
 
-    /* Sun at Horizon (Half set) */
-    --sun-pos: calc(50% - 24px);
+    /* Sun resting half on the new 45% horizon (Subtract half 48px height) */
+    --sun-pos: calc(45% - 24px);
 }
 
 /* Night (19-4) */
@@ -99,6 +98,11 @@ body {
     overflow: hidden;
     line-height: 1.6;
     transition: background-color 1s ease;
+}
+
+/* ページ読み込み時に不要なアニメーション（昼から夜への遷移など）を防ぐ */
+body.preload * {
+    transition: none !important;
 }
 
 .app-container {
@@ -216,6 +220,7 @@ body {
     /* 45%から60%までのエリアを海にする */
     background: var(--c-sea);
     z-index: 1;
+    transition: background-color 2s ease;
 }
 
 .waves-container {
@@ -244,6 +249,7 @@ body {
     fill: var(--c-sea);
     /* 速度はお好みで調整してください */
     animation: flowWave linear 4s infinite;
+    transition: fill 2s ease;
 }
 
 /* width: 300% に対して 66.66%（2/3）動かすと、波2サイクル分がぴったり移動してループが繋がる */
@@ -691,15 +697,34 @@ body {
     background: #FFFAF0;
 }
 
-/* --- Responsive Adjustments (Mobile) --- */
-@media (max-width: 480px) {
+/* --- Responsive Adjustments (Mobile & small heights) --- */
+@media (max-width: 480px),
+(max-height: 700px) {
+    body {
+        /* 画面が小さいときは全体のスクロールを許可する */
+        overflow: auto;
+    }
+
+    .app-container {
+        /* スマホのアドレスバー分を考慮した高さ設定に */
+        min-height: 100vh;
+        height: auto;
+    }
+
     .card {
         padding: 2rem 1.5rem;
+        /* カードが画面外にはみ出さないようにガード */
+        max-height: 90vh;
+        /* スクロールをカード自体に持たせる */
+        overflow-y: auto;
     }
 
     .action-btn {
         min-width: unset;
-        width: 85%;
+        width: 100%;
+        /* 横幅いっぱいにしつつ */
+        max-width: 300px;
+        /* 広がりすぎないよう制限 */
         margin: 0 auto;
         padding: 0.8rem 1rem;
         font-size: 1rem;
@@ -709,5 +734,23 @@ body {
         flex-direction: column;
         gap: 0.8rem;
         align-items: center;
+    }
+
+    /* 空があまりにも狭くならないよう調整 */
+    .sea-layer {
+        top: 50%;
+        /* 海の開始位置を少し下げる（空を広げる） */
+        height: 15%;
+    }
+
+    .waves-container {
+        top: calc(65% - 1px);
+    }
+
+    .sand-layer {
+        top: 65%;
+        height: 35%;
+        padding-bottom: 2rem;
+        /* 砂浜エリアも小さく */
     }
 }

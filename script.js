@@ -34,8 +34,14 @@ let currentQuestion = "";
 
 // --- Init ---
 function init() {
-    // Check time for theme
+    // Check time for theme immediately to prevent flash
     checkTime();
+
+    // Remove the preload class after a very brief delay so CSS transitions can turn back on
+    setTimeout(() => {
+        document.body.classList.remove('preload');
+    }, 50);
+
     setInterval(checkTime, 60000); // Check every minute
 
     // 1. Initial Setup
@@ -153,11 +159,31 @@ function saveAsImage() {
         confirmCard.style.maxHeight = originalMaxHeight;
         confirmCard.style.overflow = originalOverflow;
 
-        // Download
-        const link = document.createElement('a');
-        link.download = `mitto_${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        canvas.toBlob((blob) => {
+            if (!blob) return;
+
+            const fileName = `mitto_${Date.now()}.png`;
+            const file = new File([blob], fileName, { type: 'image/png' });
+
+            // スマホ向け: navigator.share が使えて、かつファイルのシェアに対応しているかチェック
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    files: [file],
+                    title: 'Mitto ボトルメール',
+                    text: '今の気持ちをボトルに詰めました。 #mitto'
+                }).catch((error) => {
+                    console.log('共有がキャンセルされたか失敗しました', error);
+                });
+            } else {
+                // PCや未対応ブラウザ向け: 従来の直接ダウンロード（フォールバック）
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url); // メモリ解放
+            }
+        }, 'image/png');
     });
 }
 
