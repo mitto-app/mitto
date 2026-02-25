@@ -1,5 +1,6 @@
 :root {
     --font-main: 'Zen Maru Gothic', sans-serif;
+    --horizon: 45%;
 
     /* Default (Day 9-16) Variables */
     --bg-sky: var(--c-sky);
@@ -40,7 +41,7 @@
     --c-sun: #FFFAE0;
 
     /* Sun resting half on the 45% horizon (Subtract half 48px height) */
-    --sun-pos: calc(45% - 24px);
+    --sun-pos: calc(var(--horizon) - 24px);
 }
 
 /* Sunset (16-19) */
@@ -55,7 +56,7 @@
     --c-logo: #FFF;
 
     /* Sun resting half on the new 45% horizon (Subtract half 48px height) */
-    --sun-pos: calc(45% - 24px);
+    --sun-pos: calc(var(--horizon) - 24px);
 }
 
 /* Night (19-4) */
@@ -94,6 +95,7 @@ body {
     font-family: var(--font-main);
     background-color: var(--c-sand);
     min-height: 100vh;
+    min-height: 100dvh;
     color: var(--c-text-primary);
     overflow: hidden;
     line-height: 1.6;
@@ -108,6 +110,7 @@ body.preload * {
 .app-container {
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -213,7 +216,7 @@ body.preload * {
 
 .sea-layer {
     position: absolute;
-    top: 45%;
+    top: var(--horizon);
     /* 空が終わる水平線の位置 */
     width: 100%;
     height: 15%;
@@ -700,15 +703,21 @@ body.preload * {
 /* --- Responsive Adjustments (Mobile & small heights) --- */
 @media (max-width: 480px),
 (max-height: 700px) {
+    :root {
+        --horizon: 40%;
+    }
+
     body {
         /* 画面が小さいときは全体のスクロールを許可する */
-        overflow: auto;
+        overflow: hidden;
     }
 
     .app-container {
         /* スマホのアドレスバー分を考慮した高さ設定に */
         min-height: 100vh;
-        height: auto;
+        min-height: 100dvh;
+        height: 100vh;
+        height: 100dvh;
     }
 
     .card {
@@ -738,7 +747,7 @@ body.preload * {
 
     /* 空があまりにも狭くならないよう調整しつつ、ボタンが押し出されないようにさらに調整 */
     .sea-layer {
-        top: 40%;
+        top: var(--horizon);
         /* 空は40%まで */
         height: 15%;
         /* 海は15% (合計55%) */
