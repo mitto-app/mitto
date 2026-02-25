@@ -190,6 +190,7 @@ function saveAsImage() {
     // We want to capture the card content but NOT the buttons.
     // Let's capture `confirmCard` but hide buttons temporarily just in case style bleeds.
     confirmActions.style.display = 'none';
+    confirmCard.classList.add('capturing');
 
     // 長い文章が途切れないように、一時的に高さの制限とスクロールを解除
     const originalMaxHeight = confirmCard.style.maxHeight;
@@ -205,6 +206,7 @@ function saveAsImage() {
     }).then(canvas => {
         // 元のスタイルとボタンを復元
         confirmActions.style.display = 'flex';
+        confirmCard.classList.remove('capturing');
         confirmCard.style.maxHeight = originalMaxHeight;
         confirmCard.style.overflow = originalOverflow;
 
@@ -216,21 +218,11 @@ function saveAsImage() {
         canvas.toBlob(async (blob) => {
             const file = new File([blob], "mitto_message.png", { type: "image/png" });
 
-            // 2. スマホかつWeb Share API がサポートされている場合のみ、共有メニューを呼び出す
-            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    // 3. Apple純正の共有メニュー（あるいはAndroidの共有画面）を呼び出す
-                    await navigator.share({
-                        files: [file],
-                        title: 'mitto',
-                        text: '心を海に放ちました。',
-                    });
-                } catch (error) {
-                    console.log('Sharing failed', error);
-                    // ユーザーがキャンセルした場合はここに来る
-                }
+            if (isMobile) {
+                // スマホの場合は画像確認オーバーレイを表示 (ジェスチャー切れの回避・長押し保存対応)
+                showImageOverlay(canvas, file);
             } else {
-                // PCやWeb Share API非対応ブラウザの場合は、従来のダウンロード処理を行う
+                // PCの場合は従来のダウンロード処理を行う
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.download = 'mitto_message.png';
@@ -239,6 +231,101 @@ function saveAsImage() {
                 URL.revokeObjectURL(url); // メモリ解放
             }
         }, 'image/png');
+    });
+}
+
+function showImageOverlay(canvas, file) {
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
+    overlay.style.zIndex = '9999';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.padding = '2rem';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.3s ease';
+
+    const text = document.createElement('p');
+    text.innerHTML = '画像を長押しして保存するか、<br>シェアボタンをご利用ください';
+    text.style.color = '#FFF';
+    text.style.marginBottom = '1.5rem';
+    text.style.fontWeight = 'bold';
+    text.style.textAlign = 'center';
+    text.style.lineHeight = '1.6';
+
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL('image/png');
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '65%';
+    img.style.borderRadius = '12px';
+    img.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
+
+    const btnRow = document.createElement('div');
+    btnRow.style.display = 'flex';
+    btnRow.style.gap = '1rem';
+    btnRow.style.marginTop = '2rem';
+    btnRow.style.width = '100%';
+    btnRow.style.maxWidth = '320px';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '閉じる';
+    closeBtn.className = 'action-btn outline-btn';
+    closeBtn.style.color = '#FFF';
+    closeBtn.style.borderColor = '#FFF';
+    closeBtn.style.flex = '1';
+    closeBtn.style.minWidth = '0';
+    closeBtn.onclick = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            if (document.body.contains(overlay)) {
+                document.body.removeChild(overlay);
+            }
+        }, 300);
+    };
+
+    const shareBtn = document.createElement('button');
+    shareBtn.textContent = 'シェアする';
+    shareBtn.className = 'action-btn primary-btn';
+    shareBtn.style.flex = '1';
+    shareBtn.style.minWidth = '0';
+    shareBtn.onclick = async () => {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'mitto',
+                    text: '心を海に放ちました。',
+                });
+            } catch (e) {
+                console.log('Sharing failed', e);
+            }
+        } else {
+            alert('このブラウザはファイルシェアに対応していません。');
+        }
+    };
+
+    btnRow.appendChild(closeBtn);
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        btnRow.appendChild(shareBtn);
+    } else {
+        closeBtn.style.maxWidth = '200px';
+        closeBtn.style.margin = '0 auto';
+    }
+
+    overlay.appendChild(text);
+    overlay.appendChild(img);
+    overlay.appendChild(btnRow);
+
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
     });
 }
 

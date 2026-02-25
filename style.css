@@ -700,6 +700,23 @@ body.preload * {
     background: #FFFAF0;
 }
 
+.watermark {
+    position: absolute;
+    bottom: 1rem;
+    right: 1.5rem;
+    font-family: var(--font-main);
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #546E7A;
+    opacity: 0.4;
+    display: none;
+}
+
+.capturing .watermark {
+    display: block;
+}
+
 /* --- Responsive Adjustments (Mobile & small heights) --- */
 @media (max-width: 480px),
 (max-height: 700px) {
