@@ -736,21 +736,27 @@ body.preload * {
         align-items: center;
     }
 
-    /* 空があまりにも狭くならないよう調整 */
+    /* 空があまりにも狭くならないよう調整しつつ、ボタンが押し出されないようにさらに調整 */
     .sea-layer {
-        top: 50%;
-        /* 海の開始位置を少し下げる（空を広げる） */
+        top: 40%;
+        /* 空は40%まで */
         height: 15%;
+        /* 海は15% (合計55%) */
     }
 
     .waves-container {
-        top: calc(65% - 1px);
+        top: calc(55% - 1px);
     }
 
     .sand-layer {
-        top: 65%;
-        height: 35%;
+        top: 55%;
+        height: 45%;
+        /* 砂浜の背を高くして、中のボトルとボタンを押し上げる */
         padding-bottom: 2rem;
-        /* 砂浜エリアも小さく */
+    }
+
+    /* ボトルの下にあるマージンを減らしてボタンを詰める */
+    .bottle-wrapper {
+        margin-bottom: 2rem;
     }
 }
