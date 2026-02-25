@@ -208,29 +208,29 @@ function saveAsImage() {
         confirmCard.style.maxHeight = originalMaxHeight;
         confirmCard.style.overflow = originalOverflow;
 
-        canvas.toBlob((blob) => {
-            if (!blob) return;
+        // 1. CanvasをBlob（バイナリデータ）に変換
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], "mitto_message.png", { type: "image/png" });
 
-            const fileName = `mitto_${Date.now()}.png`;
-            const file = new File([blob], fileName, { type: 'image/png' });
-
-            // スマホ向け: navigator.share が使えて、かつファイルのシェアに対応しているかチェック
+            // 2. Web Share API がサポートされているか、かつ共有可能かチェック
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({
-                    files: [file],
-                    title: 'Mitto ボトルメール',
-                    text: '今の気持ちをボトルに詰めました。 #mitto'
-                }).catch((error) => {
-                    console.log('共有がキャンセルされたか失敗しました', error);
-                });
+                try {
+                    // 3. Apple純正の共有メニューを呼び出す
+                    await navigator.share({
+                        files: [file],
+                        title: 'mitto',
+                        text: '心を海に放ちました。',
+                    });
+                } catch (error) {
+                    console.log('Sharing failed', error);
+                    // ユーザーがキャンセルした場合はここに来る
+                }
             } else {
-                // PCや未対応ブラウザ向け: 従来の直接ダウンロード（フォールバック）
-                const url = URL.createObjectURL(blob);
+                // Web Share API非対応ブラウザ（PCなど）の場合は、従来のダウンロード処理を行う
                 const link = document.createElement('a');
-                link.download = fileName;
-                link.href = url;
+                link.download = 'mitto_message.png';
+                link.href = canvas.toDataURL();
                 link.click();
-                URL.revokeObjectURL(url); // メモリ解放
             }
         }, 'image/png');
     });
