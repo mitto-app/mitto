@@ -1,0 +1,670 @@
+:root {
+    --font - main: 'Zen Maru Gothic', sans - serif;
+
+    /* Default (Day 9-16) Variables */
+    --bg - sky: var(--c - sky);
+    /* Fallback */
+    /* Day Sky (New) */
+    --c - sky - top: #6fc8de;
+    --c - sky - bottom: #e2ecf2;
+    --c - sea: #6ec2e4;
+    /* Fresh Day Sea */
+
+    --c - sand: #F7E9C6;
+    --c - sun: #FFFFF0;
+    --c - sun - glow: rgba(255, 255, 255, 0.4);
+    --c - logo: #F0F4F8;
+
+    /* Default Sun Position (High) */
+    --sun - pos: 15 %;
+
+    /* Default Button Colors (Day) */
+    --c - btn - bg: #546E7A;
+    --c - btn - text: #FFFFFF;
+
+    /* Animation Easing */
+    --ease - elastic: cubic - bezier(0.68, -0.55, 0.265, 1.55);
+    --ease - smooth: cubic - bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* --- THEMES --- */
+
+/* Morning (4-9) */
+/* Morning (4-9) */
+[data - theme="morning"] {
+    /* Morning Sky (New) */
+    --c - sky - top: #9cbee1;
+    --c - sky - bottom: #ffbf57;
+    --c - sea: #9cbee1;
+    /* Muted Blue-Grey reflecting the upper sky/clouds */
+    --c - sun: #FFFAE0;
+
+    /* Sun at Horizon (Half set) - Relative to 60% Sky Layer */
+    /* 50% of Sky Layer = 30% of Viewport (Horizon) */
+    --sun - pos: calc(50 % - 24px);
+}
+
+/* Sunset (16-19) */
+[data - theme="sunset"] {
+    /* Sunset Sky (New) */
+    --c - sky - top: #6894d6;
+    --c - sky - bottom: #fdb257;
+    --c - sea: #6089c7;
+    /* Reflecting the bottom orange */
+    --c - sun: #ffae00;
+    --c - sun - glow: rgba(255, 215, 0, 0.4);
+    --c - logo: #FFF;
+
+    /* Sun at Horizon (Half set) */
+    --sun - pos: calc(50 % - 24px);
+}
+
+/* Night (19-4) */
+[data - theme="night"] {
+    /* Night Sky (New) */
+    --c - sky - top: #041941;
+    --c - sky - bottom: #006591;
+    --c - sea: #175975;
+    /* Deep matching blue */
+    --c - sand: #2C3E50;
+    /* Darker sand */
+    --c - sun: #FEFCD7;
+    /* Moon color */
+    --c - sun - glow: rgba(255, 255, 255, 0.1);
+    --c - logo: #FFF;
+    --moon - mode: 1;
+    /* Trigger switch */
+
+    /* Sun (Moon) High */
+    --sun - pos: 10 %;
+
+    /* Button Colors (Inverted for Night) */
+    --c - btn - bg: #FFFFFF;
+    --c - btn - text: #546E7A;
+}
+
+/* --- Base Styles --- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box- sizing: border - box;
+}
+
+body {
+    font - family: var(--font - main);
+    background - color: var(--c - sand);
+    min - height: 100vh;
+    color: var(--c - text - primary);
+    overflow: hidden;
+    line - height: 1.6;
+    transition: background - color 1s ease;
+}
+
+.app - container {
+    width: 100 %;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    flex - direction: column;
+}
+
+/* --- Header --- */
+.app - header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100 %;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify - content: space - between;
+    align - items: center;
+    z - index: 100;
+}
+
+.logo {
+    font - family: 'Zen Maru Gothic', sans - serif;
+    /* Keep consistent */
+    font - size: 2.2rem;
+    font - weight: 700;
+    font - style: italic;
+    /* Mitto logo style */
+    color: #DAE8FC;
+    /* Very Pale Blue */
+    text - shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.menu - btn {
+    width: 32px;
+    height: 24px;
+    display: flex;
+    flex - direction: column;
+    justify - content: space - between;
+    cursor: pointer;
+}
+
+.menu - line {
+    width: 100 %;
+    height: 4px;
+    background - color: #546E7A;
+    border - radius: 4px;
+}
+
+/* --- Background Layers --- */
+.scene - layer {
+    position: absolute;
+    width: 100 %;
+}
+
+/* Sky gradient */
+.sky - layer {
+    top: 0;
+    height: 100 %;
+    background: linear - gradient(to bottom, var(--c - sky - top), var(--c - sky - bottom));
+    z - index: auto;
+    /* sky-layer（空・スタッキング解除） */
+    transition: background 2s ease;
+}
+
+.sun {
+    position: absolute;
+    top: var(--sun - pos);
+    /* Dynamic Position */
+    left: 50 %;
+    transform: translateX(-50 %);
+    width: 48px;
+    height: 48px;
+    background: var(--c - sun);
+    border - radius: 50 %;
+    box - shadow: 0 0 30px var(--c - sun - glow);
+    transition: all 2s ease;
+}
+
+/* Stars (Hidden by default, shown in Night) */
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100 %;
+    height: 100 %;
+    background - image:
+    radial - gradient(1px 1px at 20px 30px, #FFF, rgba(0, 0, 0, 0)),
+        radial - gradient(1px 1px at 40px 70px, #FFF, rgba(0, 0, 0, 0)),
+        radial - gradient(2px 2px at 50px 160px, #FFF, rgba(0, 0, 0, 0)),
+        radial - gradient(1px 1px at 90px 40px, #FFF, rgba(0, 0, 0, 0)),
+        radial - gradient(1px 1px at 130px 80px, #FFF, rgba(0, 0, 0, 0)),
+        radial - gradient(2px 2px at 160px 120px, #FFF, rgba(0, 0, 0, 0));
+    background - repeat: repeat;
+    background - size: 200px 200px;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+
+/* Activate stars in night mode */
+[data - theme="night"].stars {
+    opacity: 0.8;
+}
+
+/* --- レイアウトの重なり --- */
+
+.sea - layer {
+    position: absolute;
+    top: 0;
+    width: 100 %;
+    height: 60 %;
+    /* 海の領域 */
+    background: var(--c - sea);
+    z - index: 1;
+}
+
+/* --- レイアウトの重なり --- */
+.sea - layer {
+    position: absolute;
+    top: 0;
+    width: 100 %;
+    height: 60 %;
+    background: var(--c - sea);
+    z - index: 1;
+}
+
+.waves - container {
+    position: absolute;
+    top: calc(60 % - 100px);
+    left: 0;
+    width: 100 %;
+    height: 400px;
+    z - index: 2;
+    overflow: hidden;
+    pointer - events: none;
+}
+
+.sand - layer {
+    position: absolute;
+    top: 60 %;
+    bottom: 0;
+    width: 100 %;
+    background: var(--c - sand);
+    z - index: 3;
+    /* 波(2)を完全に隠す */
+}
+
+/* --- アニメーション：単純な上下の満ち引き --- */
+.wave - layers > use {
+    fill: var(--c - sea);
+    /* 左右にわずかに揺らしつつ(move)、主役は上下の満ち引き(flow) */
+    animation: wave - move 15s linear infinite, wave - flow 10s ease -in -out infinite;
+}
+
+/* 各層のズレを作る（透明度と時間） */
+.wave - layers > use: nth - child(1) {
+    opacity: 0.3;
+    animation - duration: 15s, 12s;
+}
+
+.wave - layers > use: nth - child(2) {
+    opacity: 0.5;
+    animation - duration: 12s, 10s;
+    animation - delay: -2s;
+}
+
+.wave - layers > use: nth - child(3) {
+    opacity: 0.7;
+    animation - duration: 10s, 8s;
+    animation - delay: -4s;
+}
+
+.wave - layers > use: nth - child(4) {
+    opacity: 1.0;
+    animation - duration: 8s, 7s;
+    animation - delay: -1s;
+}
+
+@keyframes wave - move {
+    from {
+        transform: translateX(-90px);
+    }
+
+    to {
+        transform: translateX(85px);
+    }
+}
+
+@keyframes wave - flow {
+
+    0 %,
+        100 % {
+            transform: translateY(0);
+        }
+
+    50 % {
+        transform: translateY(220px);
+    }
+
+    /* 砂浜の下へ潜り込ませる */
+}
+
+.sand - layer {
+    position: absolute;
+    bottom: 0;
+    width: 100 %;
+    height: 40 %;
+    background: var(--c - sand);
+    z - index: auto;
+    /* sand-layer（スタッキング解除でビンのz-indexを機能させる） */
+    display: flex;
+    flex - direction: column;
+    justify - content: flex - end;
+    align - items: center;
+    padding - bottom: 5rem;
+}
+
+
+
+/* Ensure Bottle is clickable even if Sea is on top */
+/* Only the 'filled' parts of SVG block clicks? No, the container div blocks. */
+/* We MUST set pointer-events: none on .sea-layer. */
+/* But if there are interactive elements in Sea? (None currently). */
+
+/* --- Bottle --- */
+.bottle - wrapper {
+    position: relative;
+    margin - bottom: 4rem;
+    transition: all 1s var(--ease - smooth);
+    cursor: pointer;
+    z - index: 10;
+    /* bottle-wrapper（ビン：すべての背景より最前面に配置） */
+}
+
+/* State: Horizontal (Lying on sand) */
+.bottle - wrapper.horizontal.bottle {
+    transform: rotate(80deg);
+}
+
+.bottle - wrapper.horizontal.bottle - shadow {
+    width: 140px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border - radius: 50 %;
+    position: absolute;
+    bottom: -10px;
+    /**/
+    left: 50 %;
+    transform: translateX(-50 %) rotate(-5deg);
+    filter: blur(4px);
+}
+
+/* State: Floating (Animating up -> Zooming towards user) */
+.bottle - wrapper.floating {
+    transform: scale(1.4) translateY(-20px);
+    /* Zoom in 40% */
+    opacity: 0;
+    /* Fade out as it gets too close/turns into card */
+    pointer - events: none;
+    transition: all 0.8s ease -in;
+    /* Faster ease-in for "whoosh" effect */
+}
+
+/* Force rotation to persist during float */
+.bottle - wrapper.floating.bottle {
+    transform: rotate(80deg);
+}
+
+/* State: Released (Thrown away) */
+.bottle - wrapper.released {
+    opacity: 1;
+    /* Make visible again for animation */
+    /* Starting position overrides will be handled by keyframe or specific class toggles in JS context */
+    transform: translateY(0) scale(1);
+    animation: throw -bottle 5s forwards ease -in -out;
+}
+
+@keyframes throw -bottle {
+    0 % {
+        transform: translate3d(0, 40px, 0) scale(1.1) rotate(5deg);
+        opacity: 0;
+        /* 手前でふわっと現れる */
+    }
+
+    10 % {
+        transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+
+    30 % {
+        transform: translate3d(-20px, -30px, 0) scale(0.8) rotate(- 10deg);
+    opacity: 0.8;
+    /* 奥へ行くにつれて少し透ける */
+}
+
+100 % {
+    transform: translate3d(5px, -180px, 0) scale(0.1) rotate(15deg);
+        opacity: 0;
+    /* 海の彼方へ消える */
+}
+}
+
+.bottle - svg {
+    filter: drop - shadow(2px 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* --- Buttons --- */
+.action - btn {
+    font - family: var(--font - main);
+    font - weight: 700;
+    font - size: 1.1rem;
+    padding: 1rem 3rem;
+    border - radius: 8px;
+    /* Slightly rounded, not full pill */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    letter - spacing: 0.05em;
+    min - width: 160px;
+}
+
+.pickup - btn {
+    background: var(--c - btn - bg);
+    /* Dynamic */
+    color: var(--c - btn - text);
+    /* Dynamic */
+    box - shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.pickup - btn:hover {
+    transform: translateY(-2px);
+    box - shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.pickup - btn.hidden {
+    display: none;
+}
+
+/* --- Cards (Input & Confirmation) --- */
+.cards - container {
+    position: absolute;
+    top: 50 %;
+    left: 50 %;
+    transform: translate(-50 %, -50 %);
+    width: 90 %;
+    max - width: 440px;
+    height: auto;
+    z - index: 50;
+    perspective: 1000px;
+    pointer - events: none;
+    /* Let clicks pass through when empty/hidden */
+}
+
+.card {
+    background: #FFFAF0;
+    /* Warm White/Cream */
+    border - radius: 16px;
+    box - shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 2.5rem 2rem;
+    width: 100 %;
+
+    /* 共通設定：常に absolute で中央固定 */
+    position: absolute;
+    top: 50 %;
+    left: 50 %;
+    transform: translate(-50 %, -45 %) scale(0.95);
+    /* 少し下から */
+    transition: all 0.5s var(--ease - smooth);
+    opacity: 0;
+    pointer - events: none;
+    max - height: 80vh;
+    display: flex;
+    flex - direction: column;
+    /* overflow-y: auto は全体ではなく、中身（card-body類）に任せるため削除 */
+}
+
+.card.visible {
+    opacity: 1;
+    /* translate(-50%, -50%) でピタッと中央に止める */
+    transform: translate(-50 %, -50 %) scale(1);
+    pointer - events: auto;
+}
+
+.card.exiting {
+    opacity: 0;
+    transform: translate(-50 %, -60 %) scale(0.9);
+    /* 上にふわっと消える */
+    transition: all 0.4s ease -in;
+}
+
+.card.hidden {
+    display: none;
+    /* Fully remove from flow */
+}
+
+.card - header {
+    margin - bottom: 0.5rem;
+    width: 100 %;
+    text - align: center;
+    /* Center Q */
+}
+
+.card - header.centered {
+    text - align: center;
+}
+
+.card - label {
+    font - family: var(--font - main);
+    /* Zen Maru Gothic */
+    font - style: normal;
+    /* Remove italic */
+    font - size: 1.6rem;
+    font - weight: 700;
+    color: #546E7A;
+    /* Requested Color */
+    transform: skewX(-10deg);
+    /* Slight italic manually */
+    display: inline - block;
+    /* Required for transform */
+}
+
+.card - body {
+    width: 100 %;
+    display: flex;
+    flex - direction: column;
+    /* Added flex properties for scrolling */
+    flex: 1;
+    overflow - y: auto;
+}
+
+.question - text {
+    font - size: 1.1rem;
+    font - weight: 700;
+    color: #546E7A;
+    /* Requested Color */
+    margin - bottom: 1rem;
+    line - height: 1.6;
+    text - align: center;
+    /* Center Question */
+    transform: skewX(-10deg);
+    /* Slight italic manually */
+}
+
+.question - text.preview {
+    text - align: center;
+}
+
+.divider {
+    width: 100 %;
+    height: 1px;
+    background: #E0E0E0;
+    margin: 1rem 0;
+}
+
+.journal - input {
+    width: 100 %;
+    min - height: 200px;
+    height: 100 %;
+    /* 親が伸びたら一緒に伸びるように */
+    border: none;
+    background: transparent;
+    font - family: var(--font - main);
+    font - size: 1rem;
+    color: #333;
+    resize: none;
+    outline: none;
+    line - height: 1.8;
+}
+
+.journal - input::placeholder {
+    color: #AAA;
+}
+
+/* Next Button (Triangle/Arrow) */
+.next - btn {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    background: #546E7A;
+    color: white;
+    width: 48px;
+    height: 48px;
+    border - radius: 50 %;
+    border: none;
+    display: flex;
+    justify - content: center;
+    align - items: center;
+    cursor: pointer;
+    box - shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.next - btn:hover {
+    transform: scale(1.1);
+}
+
+/* Confirmation Styles */
+.card.confirm - card {
+    padding - bottom: 2rem;
+    /* Space for buttons */
+}
+
+.card - content - capture {
+    width: 100 %;
+    flex: 1;
+    overflow - y: auto;
+    overflow - x: hidden;
+    /* Custom scroll view */
+    padding - bottom: 1rem;
+    display: flex;
+    flex - direction: column;
+    align - items: center;
+}
+
+.answer - preview {
+    font - size: 1rem;
+    color: #444;
+    white - space: pre - wrap;
+    word - wrap: break-word;
+    /* Ensure it drops to the next line instead of overflowing */
+    overflow - x: hidden;
+    line - height: 1.8;
+    text - align: left;
+    width: 100 %;
+    /* Make sure it stays inside its parent width */
+}
+
+.card - actions {
+    display: flex;
+    gap: 1rem;
+    margin - top: 1.5rem;
+    width: 100 %;
+    justify - content: space - between;
+    flex - shrink: 0;
+    /* スクロール時に潰れないようにする */
+}
+
+.action - btn.outline - btn {
+    background: transparent;
+    border: 2px solid #546E7A;
+    color: #546E7A;
+    flex: 1;
+    padding: 0.8rem 0;
+}
+
+.action - btn.outline - btn:hover {
+    background: rgba(84, 110, 122, 0.1);
+}
+
+.action - btn.primary - btn {
+    background: #546E7A;
+    color: white;
+    flex: 1;
+    padding: 0.8rem 0;
+}
+
+.action - btn.primary - btn:hover {
+    background: #37474F;
+}
+
+/* Capture Hack */
+/* When capturing, we might want to ensure the background is correct or simple */
+.capturing {
+    border - radius: 0;
+    /* Flat for image */
+    background: #FFFAF0;
+}

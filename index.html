@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitto | 心を解き放つボトルメール</title>
+
+    <!-- Google Fonts: Zen Maru Gothic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="logo">mitto</h1>
+            <div class="menu-btn">
+                <div class="menu-line"></div>
+                <div class="menu-line"></div>
+                <div class="menu-line"></div>
+            </div>
+        </header>
+
+        <!-- Background Layers -->
+        <div class="scene-layer sky-layer">
+            <div class="stars"></div>
+            <div class="sun"></div>
+        </div>
+
+        <div class="scene-layer sea-layer">
+            <div class="sea-fill"></div>
+        </div>
+
+        <div class="waves-container">
+            <svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" preserveAspectRatio="none">
+                <path d="M 0,0 v 100,0 q 150,50 300,0 t 300,0 q 150,50 300,0 v 0,-100 Z" />
+            </svg>
+        </div>
+
+        <div class="scene-layer sand-layer">
+            <div class="bottle-wrapper horizontal" id="bottleWrapper">
+                <div class="bottle-shadow"></div>
+                <div class="bottle" id="bottle">
+                    <svg viewBox="0 0 100 200" width="80" height="160" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        class="bottle-svg">
+                        <path d="M30 10 L30 50 L10 70 L10 190 Q10 200 50 200 Q90 200 90 190 L90 70 L70 50 L70 10 Z"
+                            stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="rgba(255,255,255,0.2)" />
+                        <rect x="28" y="0" width="44" height="15" fill="rgba(180,140,100,0.8)" rx="2" />
+                        <!-- Message Paper inside -->
+                        <rect x="35" y="100" width="30" height="60" fill="rgba(255,245,230,0.9)" rx="2"
+                            transform="rotate(-5 50 130)" />
+                    </svg>
+                </div>
+            </div>
+
+            <button class="action-btn pickup-btn" id="pickupBtn">
+                ビンを拾う
+            </button>
+        </div>
+
+        <!-- Flow Cards Container -->
+        <div class="cards-container">
+            <!-- Step 2: Input Card -->
+            <div class="card input-card hidden" id="inputCard">
+                <div class="card-body">
+                    <div class="card-header">
+                        <span class="card-label">Q.</span>
+                    </div>
+                    <h2 class="question-text" id="questionText">loading...</h2>
+                    <div class="divider"></div>
+                    <textarea class="journal-input" id="journalInput" placeholder="心の声を聞かせて"></textarea>
+                </div>
+                <!-- Submit Button -->
+                <button class="next-btn" id="toConfirmBtn">
+                    <!-- Simple Up Arrow or Text -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 19V5M5 12l7-7 7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Step 3: Confirmation Card -->
+            <!-- This card will be captured for the image -->
+            <div class="card confirm-card hidden" id="confirmCard">
+                <div class="card-content-capture" id="captureTarget">
+                    <div class="card-body">
+                        <div class="card-header centered">
+                            <span class="card-label">Q.</span>
+                        </div>
+                        <h2 class="question-text preview" id="confirmQuestion">Question</h2>
+                        <div class="divider"></div>
+                        <div class="answer-preview" id="confirmAnswer">
+                            Answer text...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-actions" id="confirmActions">
+                    <button class="action-btn outline-btn" id="saveImageBtn">画像で保存</button>
+                    <button class="action-btn primary-btn" id="releaseBtn">海に放つ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
