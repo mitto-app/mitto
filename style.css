@@ -670,26 +670,21 @@ body.preload * {
     gap: 1.5rem;
 }
 
-.support-btn {
+.menu-link {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.8rem;
     text-decoration: none;
-    color: white;
-    background: #fd656e;
-    /* Soft red/pink for support */
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 10px rgba(253, 101, 110, 0.3);
+    color: #546E7A;
+    font-size: 1.2rem;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.support-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(253, 101, 110, 0.4);
+.menu-link:hover {
+    color: #37474F;
+    transform: translateX(4px);
 }
 
 /* Capture Hack */
