@@ -186,7 +186,7 @@ function goToConfirmation() {
 }
 
 // Step 3a: Save Image
-function saveAsImage() {
+async function saveAsImage() {
     // We want to capture the card content but NOT the buttons.
     // Let's capture `confirmCard` but hide buttons temporarily just in case style bleeds.
     confirmActions.style.display = 'none';
@@ -198,135 +198,47 @@ function saveAsImage() {
     confirmCard.style.maxHeight = 'none';
     confirmCard.style.overflow = 'visible';
 
-    html2canvas(confirmCard, {
+    // 1. html2canvasの実行
+    const canvas = await html2canvas(confirmCard, {
         scale: 2, // High res
         backgroundColor: null, // Transparent corners if rounded
         logging: false,
         useCORS: true
-    }).then(canvas => {
-        // 元のスタイルとボタンを復元
-        confirmActions.style.display = 'flex';
-        confirmCard.classList.remove('capturing');
-        confirmCard.style.maxHeight = originalMaxHeight;
-        confirmCard.style.overflow = originalOverflow;
-
-        // 1. CanvasをBlob（バイナリデータ）に変換
-        // スマホ判定 (iPhone, iPad, Androidなど)
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        // 1. CanvasをBlob（バイナリデータ）に変換
-        canvas.toBlob(async (blob) => {
-            const file = new File([blob], "mitto_message.png", { type: "image/png" });
-
-            if (isMobile) {
-                // スマホの場合は画像確認オーバーレイを表示 (ジェスチャー切れの回避・長押し保存対応)
-                showImageOverlay(canvas, file);
-            } else {
-                // PCの場合は従来のダウンロード処理を行う
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.download = 'mitto_message.png';
-                link.href = url;
-                link.click();
-                URL.revokeObjectURL(url); // メモリ解放
-            }
-        }, 'image/png');
     });
+
+    // 元のスタイルとボタンを復元
+    confirmActions.style.display = 'flex';
+    confirmCard.classList.remove('capturing');
+    confirmCard.style.maxHeight = originalMaxHeight;
+    confirmCard.style.overflow = originalOverflow;
+
+    // 2. Blobへの変換を待機
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], "mitto_message.png", { type: "image/png" });
+
+    // 3. 共有の実行（ここを async/await で直結させる）
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                files: [file],
+                title: 'mitto',
+                text: '心を海に放ちました。',
+            });
+        } catch (err) {
+            // 失敗時やキャンセル時は、予備としてダウンロードを実行
+            downloadFallback(canvas);
+        }
+    } else {
+        downloadFallback(canvas);
+    }
 }
 
-function showImageOverlay(canvas, file) {
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
-    overlay.style.zIndex = '9999';
-    overlay.style.display = 'flex';
-    overlay.style.flexDirection = 'column';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.padding = '2rem';
-    overlay.style.opacity = '0';
-    overlay.style.transition = 'opacity 0.3s ease';
-
-    const text = document.createElement('p');
-    text.innerHTML = '画像を長押しして保存するか、<br>シェアボタンをご利用ください';
-    text.style.color = '#FFF';
-    text.style.marginBottom = '1.5rem';
-    text.style.fontWeight = 'bold';
-    text.style.textAlign = 'center';
-    text.style.lineHeight = '1.6';
-
-    const img = document.createElement('img');
-    img.src = canvas.toDataURL('image/png');
-    img.style.maxWidth = '100%';
-    img.style.maxHeight = '65%';
-    img.style.borderRadius = '12px';
-    img.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
-
-    const btnRow = document.createElement('div');
-    btnRow.style.display = 'flex';
-    btnRow.style.gap = '1rem';
-    btnRow.style.marginTop = '2rem';
-    btnRow.style.width = '100%';
-    btnRow.style.maxWidth = '320px';
-
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '閉じる';
-    closeBtn.className = 'action-btn outline-btn';
-    closeBtn.style.color = '#FFF';
-    closeBtn.style.borderColor = '#FFF';
-    closeBtn.style.flex = '1';
-    closeBtn.style.minWidth = '0';
-    closeBtn.onclick = () => {
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-            if (document.body.contains(overlay)) {
-                document.body.removeChild(overlay);
-            }
-        }, 300);
-    };
-
-    const shareBtn = document.createElement('button');
-    shareBtn.textContent = 'シェアする';
-    shareBtn.className = 'action-btn primary-btn';
-    shareBtn.style.flex = '1';
-    shareBtn.style.minWidth = '0';
-    shareBtn.onclick = async () => {
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({
-                    files: [file],
-                    title: 'mitto',
-                    text: '心を海に放ちました。',
-                });
-            } catch (e) {
-                console.log('Sharing failed', e);
-            }
-        } else {
-            alert('このブラウザはファイルシェアに対応していません。');
-        }
-    };
-
-    btnRow.appendChild(closeBtn);
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        btnRow.appendChild(shareBtn);
-    } else {
-        closeBtn.style.maxWidth = '200px';
-        closeBtn.style.margin = '0 auto';
-    }
-
-    overlay.appendChild(text);
-    overlay.appendChild(img);
-    overlay.appendChild(btnRow);
-
-    document.body.appendChild(overlay);
-
-    requestAnimationFrame(() => {
-        overlay.style.opacity = '1';
-    });
+// 予備のダウンロード処理
+function downloadFallback(canvas) {
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL("image/png");
+    link.download = 'mitto_message.png';
+    link.click();
 }
 
 function checkTime() {

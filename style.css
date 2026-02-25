@@ -709,12 +709,16 @@ body.preload * {
     font-weight: 700;
     font-style: italic;
     color: #546E7A;
-    opacity: 0.4;
-    display: none;
+    opacity: 0;
+    /* Changed from display: none */
+    pointer-events: none;
+    /* Prevent clicks when hidden */
+    transition: opacity 0s;
+    /* Instant for html2canvas */
 }
 
 .capturing .watermark {
-    display: block;
+    opacity: 0.4;
 }
 
 /* --- Responsive Adjustments (Mobile & small heights) --- */
